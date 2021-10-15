@@ -28,46 +28,45 @@ public class NaiveBayes {
 	
 	public NaiveBayes(World currentWorld) {
 		/* Initializing the 2D boolean array for marked tiles (default false) */
-		markedTiles = new boolean[4][4];
+		this.markedTiles = new boolean[4][4];
 		
 		/* Setting the initialWorld variable to current world */
-		naiveWorld = currentWorld;
+		this.naiveWorld = currentWorld;
 	}
 	
 	public void makeMove() {
 		/* Clearing structures for frontier and probability */
-		frontierList.clear();
-		probabilityList.clear();
-		markedTiles = new boolean[4][4];
+		this.frontierList.clear();
+		this.probabilityList.clear();
+		this.markedTiles = new boolean[4][4];
 		
 		/* Cloning current world into clonedWorld */
-		//clonedWorld = initialWorld.cloneWorld();
-		findFrontier(naiveWorld.getPlayerX(), naiveWorld.getPlayerY());
+		findFrontier(this.naiveWorld.getPlayerX(), this.naiveWorld.getPlayerY());
 	}
 	
 	public void findFrontier(int posX, int posY) {
-		if (!naiveWorld.isValidPosition(posX, posY)) {
+		if (!this.naiveWorld.isValidPosition(posX, posY)) {
 			return;
 		}
 		
-		if (naiveWorld.isUnknown(posX, posY)) {
-			if (!markedTiles[posX - 1][posY - 1]) {
+		if (this.naiveWorld.isUnknown(posX, posY)) {
+			if (!this.markedTiles[posX - 1][posY - 1]) {
 				System.out.println("Checking out coordinates ("+posX+", "+posY+")");
-				markedTiles[posX - 1][posY - 1] = true;
-				frontierList.add(new int[] {posX, posY});
-				probabilityList.add(new double[] {0, 0});
+				this.markedTiles[posX - 1][posY - 1] = true;
+				this.frontierList.add(new int[] {posX, posY});
+				this.probabilityList.add(new double[] {0, 0});
 				System.out.println("Set coordinates ("+posX+", "+posY+") as frontier");
 			}
 			else {
 				System.out.println("Coordinates ("+posX+", "+posY+") are already marked");
 			}
 		}
-		else if (markedTiles[posX - 1][posY - 1]) {
+		else if (this.markedTiles[posX - 1][posY - 1]) {
 			System.out.println("Coordinates ("+posX+", "+posY+") are already marked");
 			return;
 		}
 		else {
-			markedTiles[posX - 1][posY - 1] = true;
+			this.markedTiles[posX - 1][posY - 1] = true;
 			findFrontier(posX + 1, posY);
 			findFrontier(posX - 1, posY);
 			findFrontier(posX, posY + 1);
