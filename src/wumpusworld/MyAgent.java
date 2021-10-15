@@ -37,7 +37,7 @@ public class MyAgent implements Agent
         int cX = w.getPlayerX();
         int cY = w.getPlayerY();
         
-        bayesEngine.findFrontier(cX, cY);
+        bayesEngine.makeMove();
         
         //Basic action:
         //Grab Gold if we can.

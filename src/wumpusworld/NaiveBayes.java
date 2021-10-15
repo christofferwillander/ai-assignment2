@@ -38,9 +38,15 @@ public class NaiveBayes {
 		clonedWorld = currentWorld.cloneWorld();
 	}
 	
-	public void makeMove(World currentWorld) {
+	public void makeMove() {
+		/* Clearing structures for frontier and probability */
+		frontierList.clear();
+		probabilityList.clear();
+		markedTiles = new boolean[4][4];
+		
 		/* Cloning current world into clonedWorld */
-		clonedWorld = currentWorld.cloneWorld();
+		clonedWorld = initialWorld.cloneWorld();
+		findFrontier(clonedWorld.getPlayerX(), clonedWorld.getPlayerY());
 	}
 	
 	public void findFrontier(int posX, int posY) {
@@ -49,7 +55,7 @@ public class NaiveBayes {
 		}
 		
 		if (clonedWorld.isUnknown(posX, posY)) {
-			if (!markedTiles[posX-1][posY-1]) {
+			if (!markedTiles[posX - 1][posY - 1]) {
 				System.out.println("Checking out coordinates ("+posX+", "+posY+")");
 				markedTiles[posX-1][posY-1] = true;
 				frontierList.add(new int[] {posX, posY});
@@ -60,11 +66,12 @@ public class NaiveBayes {
 				System.out.println("Coordinates ("+posX+", "+posY+") are already marked");
 			}
 		}
-		else if (markedTiles[posX-1][posY-1]) {
+		else if (markedTiles[posX - 1][posY - 1]) {
+			System.out.println("Coordinates ("+posX+", "+posY+") are already marked");
 			return;
 		}
 		else {
-			markedTiles[posX-1][posY-1] = true;
+			markedTiles[posX - 1][posY - 1] = true;
 			findFrontier(posX + 1, posY);
 			findFrontier(posX - 1, posY);
 			findFrontier(posX, posY + 1);
@@ -77,11 +84,11 @@ public class NaiveBayes {
 	}
 	
 	private void confirmTheory() {
-		
+		/* TBA */
 	}
 	
 	private void findMove() {
-		
+		/* TBA */
 	}
 	
 }
