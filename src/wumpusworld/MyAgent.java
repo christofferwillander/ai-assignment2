@@ -10,6 +10,7 @@ public class MyAgent implements Agent
 {
     private World w;
     int rnd;
+    NaiveBayes bayesEngine;
     
     /**
      * Creates a new instance of your solver agent.
@@ -18,9 +19,13 @@ public class MyAgent implements Agent
      */
     public MyAgent(World world)
     {
-        w = world;   
+        w = world;
+        bayesEngine = new NaiveBayes(w);
     }
+    
+    
    
+    
             
     /**
      * Asks your solver agent to execute an action.
@@ -32,6 +37,7 @@ public class MyAgent implements Agent
         int cX = w.getPlayerX();
         int cY = w.getPlayerY();
         
+        bayesEngine.findFrontier(cX, cY);
         
         //Basic action:
         //Grab Gold if we can.
@@ -80,7 +86,7 @@ public class MyAgent implements Agent
         }
         
         //decide next move
-        rnd = decideRandomMove();
+        /*rnd = decideRandomMove();
         if (rnd==0)
         {
             w.doAction(World.A_TURN_LEFT);
@@ -103,12 +109,12 @@ public class MyAgent implements Agent
         {
             w.doAction(World.A_TURN_RIGHT);
             w.doAction(World.A_MOVE);
-        }
+        }*/
                 
     }    
     
      /**
-     * Genertes a random instruction for the Agent.
+     * Generates a random instruction for the Agent.
      */
     public int decideRandomMove()
     {
