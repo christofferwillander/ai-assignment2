@@ -4,9 +4,8 @@ import java.util.ArrayList;
 
 public class NaiveBayes {
 	
-	/* Variables holding current status of the world */
-	private World clonedWorld;
-	private World initialWorld;
+	/* Variable that will refer to the current status of the world */
+	private World naiveWorld;
 	
 	/* Boolean 2D-array for keeping track of marked tiles */
 	private boolean markedTiles[][];
@@ -32,10 +31,7 @@ public class NaiveBayes {
 		markedTiles = new boolean[4][4];
 		
 		/* Setting the initialWorld variable to current world */
-		initialWorld = currentWorld;
-		
-		/* Cloning current world into clonedWorld */
-		clonedWorld = currentWorld.cloneWorld();
+		naiveWorld = currentWorld;
 	}
 	
 	public void makeMove() {
@@ -45,19 +41,19 @@ public class NaiveBayes {
 		markedTiles = new boolean[4][4];
 		
 		/* Cloning current world into clonedWorld */
-		clonedWorld = initialWorld.cloneWorld();
-		findFrontier(clonedWorld.getPlayerX(), clonedWorld.getPlayerY());
+		//clonedWorld = initialWorld.cloneWorld();
+		findFrontier(naiveWorld.getPlayerX(), naiveWorld.getPlayerY());
 	}
 	
 	public void findFrontier(int posX, int posY) {
-		if (!clonedWorld.isValidPosition(posX, posY)) {
+		if (!naiveWorld.isValidPosition(posX, posY)) {
 			return;
 		}
 		
-		if (clonedWorld.isUnknown(posX, posY)) {
+		if (naiveWorld.isUnknown(posX, posY)) {
 			if (!markedTiles[posX - 1][posY - 1]) {
 				System.out.println("Checking out coordinates ("+posX+", "+posY+")");
-				markedTiles[posX-1][posY-1] = true;
+				markedTiles[posX - 1][posY - 1] = true;
 				frontierList.add(new int[] {posX, posY});
 				probabilityList.add(new double[] {0, 0});
 				System.out.println("Set coordinates ("+posX+", "+posY+") as frontier");
