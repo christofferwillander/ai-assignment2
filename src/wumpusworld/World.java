@@ -11,10 +11,12 @@ import java.util.Vector;
  */
 public class World 
 {
+
     private int size;
     private String[][] w;
     private int pX = 1;
     private int pY = 1;
+    private int knowns = 0;      /* REVISION 3!!!! */
     private boolean wumpusAlive = true;
     private boolean hasArrow = true;
     private boolean isInPit = false;
@@ -39,6 +41,7 @@ public class World
     public static final String GLITTER = "G";
     public static final String GOLD = "T";
     public static final String UNKNOWN = "U";
+    public  static  final String MARKED = "M";     /*REVISION 1 !!!!*/
     
     //Actions constants.
     public static final String A_MOVE = "m";
@@ -443,6 +446,7 @@ public class World
     {
         if (w[x][y].contains(UNKNOWN))
         {
+            knowns += 1;                                /*REVISION 4!!!!*/
             w[x][y] = w[x][y].replaceAll(UNKNOWN, "");
         }
     }
@@ -582,7 +586,7 @@ public class World
         
         pX = nX;
         pY = nY;
-        
+
         setVisited(pX, pY);
         
         if(hasWumpus(pX,pY))
@@ -598,4 +602,43 @@ public class World
         
         return true;    
     }
+
+
+    /*REVISION 2!!!!*/
+    public void setMarked(int x, int y)
+    {   if(isValidPosition(x,y))
+        {
+            if (!w[x][y].contains(MARKED))
+            {
+                append(x,y,MARKED);
+
+            }
+        }
+
+    }
+
+    public boolean hasMarked(int x, int y)
+    {
+        if (!isValidPosition(x,y)) return false;
+
+        if (w[x][y].contains(MARKED))
+            return true;
+        else
+            return false;
+    }
+
+    public void markSurrounding(int x, int y)
+    {
+        setMarked(x + 1, y);
+        setMarked(x - 1, y);
+        setMarked(x, y + 1);
+        setMarked(x, y - 1);
+    }
+
+
+    public int getKnowns()
+    {
+        return knowns;
+    }
+
 }
