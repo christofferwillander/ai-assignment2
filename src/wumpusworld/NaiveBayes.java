@@ -190,5 +190,113 @@ public class NaiveBayes {
         }
         return consistent;
     }
+
+	/**
+    *
+    * @param list The list that we want to clone.
+    * 
+    * @return A list clone.
+    */
+    private ArrayList<int[]> cloneList(ArrayList<int[]> list) {
+        ArrayList<int[]> listClone = new ArrayList<int[]>(list.size());
+        
+        // Clone each item in the input list to the clone:
+        for (int listItem = 0; listItem < list.size(); listItem++) {
+            listClone.add(list.get(listItem).clone());
+        }
+        return listClone;
+    }
+
+	/**
+    *
+    * @param combinationSet The set of squares that will be combined into different situations. Format: int[] { pos_x, pos_y, status }, where status 1 = true | 0 = false.
+    * @param combinationResult A call by reference list of combinationSets that will store the result after the different combinations have been created.
+	*
+    * @return A list of the number of 1's (true) in each combination (mirrors the indexes of combinationResult). This value can be used to verify that the number of 1's set in a specific combination correspond to the number of existing pits and wumpus.
+    */
+    private int[] getCombinations(ArrayList<int[]> combinationSet, ArrayList<ArrayList<int[]>> combinationResult) {
+		/*combinationSet format :  int[] { pos_x, pos_y, status }
+						status:  1 = true | 0 = false */
+
+	  // The bitLength should equal the total number of squares in the frontier (excluding the query square):
+	  int bitLength = combinationSet.size();
+	  
+	  // Indicates the number of different combinations (2^n)
+	  int nrOfCombinations = 1 << bitLength;
+	  
+	  // Holds the count of the number of 1's (true) that are set in each combination:
+	  int[] trueCount = new int[nrOfCombinations];
+	  
+	  // Temporary list that holds the current combinations:
+	  ArrayList<int[]> currentCombination;
+
+	  for(int bit = 0; bit < nrOfCombinations; bit++) {
+		  // Counting the positions whose statuses are true in the current combination:
+		  int nrOfOnes = 0;
+		  
+		  /* Get the current combinations from the combination set. The cloning is done to
+		   *  make sure that no changes are done to the combinationSet object. In each bit
+		   *   iteration we need the currentCombination to be in the original state so that
+		   *    all statuses are set to 0 (false), which they are per default in the
+		   *     combinationSet object.
+		   * */
+		  currentCombination = cloneList(combinationSet);
+		  
+		  for(int j = 0; j < bitLength; j++) {
+			  /* Use a mask to get the different combinations of true/false, example if we have 2 squares as our frontier we have 2 bits:
+			   * -------------------------
+			   * mask	= 1 = 01
+			   * bit	= 0 = 00
+			   * mask & bit == 0 (AND operation).
+			   * ---
+			   * mask	= 2 = 10
+			   * bit	= 0 = 00
+			   * mask & bit == 0.
+			   * ---
+			   * mask	= 1 = 01
+			   * bit	= 1 = 01
+			   * mask & bit == 1.
+			   * ---
+			   * mask	= 2 = 10
+			   * bit	= 1 = 01
+			   * mask & bit == 0.
+			   * ---
+			   * mask	= 1 = 01
+			   * bit	= 2 = 10
+			   * mask & bit == 0.
+			   * ---
+			   * mask	= 2 = 10
+			   * bit	= 2 = 10
+			   * mask & bit == 2.
+			   * ---
+			   * mask	= 1 = 01
+			   * bit	= 3 = 11
+			   * mask & bit == 1.
+			   * ---
+			   * mask	= 2 = 10
+			   * bit	= 3 = 11
+			   * mask & bit == 2.
+			   * -------------------------
+			   * If we interpret any other value than 0 as 1, we get all possible combinations:
+			   * 00 (none of the squares harbors either a pit or a wumpus)
+			   * 10 (only one of the squares harbors either a pit or a wumpus, 1st one)
+			   * 01 (only one of the squares harbors either a pit or a wumpus, 2nd one)
+			   * 11 (both of them harbors either a pit or a wumpus)
+			   * */
+			  int mask = 1 << j;
+			  System.out.println(mask + " & " + bit + " == " + (mask & bit));
+			  if((mask & bit)!= 0) {
+				  // Set the status of the square to 1 (true):
+				  currentCombination.get(j)[2] = 1;
+				  nrOfOnes++;
+			  }
+		  }
+
+		  combinationResult.add(currentCombination);
+		  trueCount[bit] = nrOfOnes;
+	  }
+
+	  return trueCount;
+  }
 	
 }
