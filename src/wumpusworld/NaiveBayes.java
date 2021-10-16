@@ -215,8 +215,6 @@ public class NaiveBayes {
     * @return A list of the number of 1's (true) in each combination (mirrors the indexes of combinationResult). This value can be used to verify that the number of 1's set in a specific combination correspond to the number of existing pits and wumpus.
     */
     private int[] getCombinations(ArrayList<int[]> combinationSet, ArrayList<ArrayList<int[]>> combinationResult) {
-		/*combinationSet format :  int[] { pos_x, pos_y, status }
-						status:  1 = true | 0 = false */
 
 	  // The bitLength should equal the total number of squares in the frontier (excluding the query square):
 	  int bitLength = combinationSet.size();
