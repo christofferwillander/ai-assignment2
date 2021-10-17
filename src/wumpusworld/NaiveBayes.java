@@ -15,6 +15,8 @@ public class NaiveBayes {
 	ArrayList<double[]> probabilityList = new ArrayList<double[]>();
 	
 	private int pitCount = 0;
+	private boolean wumpusFound = false;
+	private int [] wumpusCoordinates = {0, 0};
 	
 	/* Probability of pit given 3 pits in the configuration */
 	private static double PROBABILITY_PIT = 3/15;
@@ -74,12 +76,108 @@ public class NaiveBayes {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param sensor
+	 */
 	private void calculateProbability(int sensor) {
-		/* TBA */
-	}
-	
-	private void confirmTheory() {
-		/* TBA */
+		double probability;
+		System.out.println("--------Probability calculations--------");
+		
+		/* Setting the probability according to the sensor in question */
+		if (sensor == PIT) {
+			probability = PROBABILITY_PIT;
+			System.out.println("Calculating probability for pit");
+		}
+		else if (sensor == WUMPUS) {
+			probability = PROBABILITY_WUMPUS;
+			System.out.println("Calculating probability for Wumpus");
+		}
+		else {
+			System.out.println("Invalid sensor type");
+			return;
+		}
+		
+		/* Calculating probability for the frontier */
+		for (int i = 0; i < frontierList.size(); i++) {
+			
+			/* Variable holding the number of combinations */
+			int numOfCombinations = 0;
+			
+			/* Arrays of type int holding the frontier queries with their corresponding true/false flags */
+			int [] trueQuery = new int[] {frontierList.get(i)[0], frontierList.get(i)[1], 1};
+			int [] falseQuery = new int[] {frontierList.get(i)[0], frontierList.get(i)[1], 0};
+			
+			/* Probability variables for true and false probabilities respectively */
+			double trueProbability = 0;
+			double falseProbability = 0;
+			
+			/* Probability after normalization */
+			double normalizedProbability = 0;
+			
+			/* Cloning list for current query */
+			ArrayList<int[]> currentQuery = cloneList(frontierList);
+			currentQuery.remove(i);
+			
+			/* Creating structure for holding combinations */
+			ArrayList<ArrayList<int []>> combinationResult = new ArrayList<ArrayList<int[]>>();
+			
+			/* Array holding number of combinations */
+			int[] combinationCount = getCombinations(currentQuery, combinationResult);
+			
+			/* Calculating the probability for all combinations in the array list */
+			for (int combination = 0; combination < combinationResult.size(); combination++) {
+				int totalCombinations = combinationResult.size();
+				
+				/* Constructing the true combination query */
+				ArrayList<int[]> trueCombinationQuery = combinationResult.get(combination);
+				trueCombinationQuery.add(trueQuery);
+				
+				/* Constructing the false combination query */
+				ArrayList<int[]> falseCombinationQuery = combinationResult.get(combination);
+				falseCombinationQuery.add(falseQuery);
+				
+				/* If sensor in question is PIT and there are <= 3 pits OR if sensor is WUMPUS and there are <= 1 WUMPUS */
+				if ((sensor == PIT && combinationCount[combination] <= 3) || (sensor == WUMPUS && combinationCount[combination] <= 1)) {
+					/* Verify consistency for true and false query, if consistent - add probability */
+					if (verifyConsistency(trueCombinationQuery, sensor)) {
+						trueProbability += Math.pow(probability, combinationCount[combination]) * Math.pow(1 - probability, totalCombinations - combinationCount[combination]);
+					}
+					
+					if (verifyConsistency(falseCombinationQuery, sensor)) {
+						falseProbability += Math.pow(probability, combinationCount[combination]) * Math.pow(1 - probability, totalCombinations - combinationCount[combination]);
+					}
+				}
+			}
+			
+			/* Calculating true and false probabilities */
+			trueProbability = probability * trueProbability;
+			falseProbability = (1 - probability) * falseProbability;
+			
+			/* Normalizing true probability */
+			normalizedProbability = trueProbability / (trueProbability + falseProbability);
+			
+			
+			/* Updating the probability in the probability list */
+			double [] tempProbability = probabilityList.get(i);
+			
+			if (sensor == PROBABILITY_PIT) {
+				tempProbability[PIT] = normalizedProbability;
+			}
+			else if (sensor == PROBABILITY_WUMPUS) {
+				tempProbability[WUMPUS] = normalizedProbability;
+			}
+			
+			probabilityList.set(i, tempProbability);
+			
+			/* If Wumpus has been located with 100 % certainty, save coordinates and update Wumpus status */
+			if (sensor == WUMPUS && normalizedProbability == 1) {
+				wumpusFound = true;
+				wumpusCoordinates[0] = frontierList.get(i)[0];
+				wumpusCoordinates[1] = frontierList.get(i)[1];
+				return;
+			}
+		}
 	}
 	
 	private void findMove() {
@@ -94,32 +192,32 @@ public class NaiveBayes {
     private void markNeighborTiles(int xPos, int yPos) {
     	// Only mark the square if it is valid and it has not already been marked.
     	
-    	if(this.w.isValidPosition(xPos + 1, yPos) && !this.markedTiles[xPos][yPos - 1]) {
+    	if(this.naiveWorld.isValidPosition(xPos + 1, yPos) && !this.markedTiles[xPos][yPos - 1]) {
         	this.markedTiles[xPos][yPos - 1] = true;
         }
-        if(this.w.isValidPosition(xPos - 1, yPos) && !this.markedTiles[xPos - 2][yPos - 1]) {
+        if(this.naiveWorld.isValidPosition(xPos - 1, yPos) && !this.markedTiles[xPos - 2][yPos - 1]) {
         	this.markedTiles[xPos - 2][yPos - 1] = true;
         }
-        if(this.w.isValidPosition(xPos, yPos + 1) && !this.markedTiles[xPos - 1][yPos]) {
+        if(this.naiveWorld.isValidPosition(xPos, yPos + 1) && !this.markedTiles[xPos - 1][yPos]) {
         	this.markedTiles[xPos - 1][yPos] = true;
         }
-        if(this.w.isValidPosition(xPos, yPos - 1) && !this.markedTiles[xPos - 1][yPos - 2]) {
+        if(this.naiveWorld.isValidPosition(xPos, yPos - 1) && !this.markedTiles[xPos - 1][yPos - 2]) {
         	this.markedTiles[xPos - 1][yPos - 2] = true;
         }
     }
 
     /**
     *
-    * @param fronteirQuery The frontier-combination to check for consistency. Contains the coordinates for the frontier squares as well as the query with the corresponding true/false status for each coordinate.
+    * @param frontierQuery The frontier-combination to check for consistency. Contains the coordinates for the frontier squares as well as the query with the corresponding true/false status for each coordinate.
     * @param condition Either WUMPUS or PIT. The consistency will be different depending on the condition. 
     * @return boolean
     */
-    private boolean verifyConsistency(ArrayList<int[]> fronteirQuery, int condition) {
+    private boolean verifyConsistency(ArrayList<int[]> frontierQuery, int condition) {
 
         //World cw = w.cloneWorld();  /*create a world of conjecture*/
     	// [0][0] represents [1,1] in the game world which means that each index is 1 less than the world square index.
     	this.markedTiles = new boolean[4][4];
-        int limit = this.w.getSize();
+        int limit = this.naiveWorld.getSize();
         boolean consistent = true;
 
         if(condition==PIT)
@@ -127,7 +225,7 @@ public class NaiveBayes {
             for (int x = 1; x <= limit; x++) {
                 for (int y = 1; y <= limit; y++)
                 {
-                    if(!this.w.isUnknown(x,y) && this.w.hasPit(x,y)) {
+                    if(!this.naiveWorld.isUnknown(x,y) && this.naiveWorld.hasPit(x,y)) {
                     	/* If we know that a particular square has a pit,
                     	 *  mark all surrounding squares (they should contain a breeze).
                     	 * */
@@ -139,11 +237,11 @@ public class NaiveBayes {
         }
 
 
-        for (int i = 0; i < fronteirQuery.size(); i++) {
+        for (int i = 0; i < frontierQuery.size(); i++) {
             int cx, cy;
-            cx = fronteirQuery.get(i)[0];
-            cy = fronteirQuery.get(i)[1];
-            if (fronteirQuery.get(i)[2] == 1)
+            cx = frontierQuery.get(i)[0];
+            cy = frontierQuery.get(i)[1];
+            if (frontierQuery.get(i)[2] == 1)
             {
             	/* Mark all the nearby squares as they should contain either a breeze or a stench if 
             	 *  the target square is True (= 1). If a frontier coordinate has a status set to True,
@@ -158,13 +256,13 @@ public class NaiveBayes {
         // Here we check for any inconsistencies with the marked squares against the real world:
         for (int x = 1; x <= limit; x++) {
             for (int y = 1; y <= limit; y++) {
-                if (!(this.w.isUnknown(x, y))) {
+                if (!(this.naiveWorld.isUnknown(x, y))) {
 
                         if(condition==PIT) {
                         	/* If we have a square that is marked (should have a breeze) but we don't find
                         	 *  a breeze on that square according to world, we have a inconsistency.
                         	 * */
-                            if (!(this.w.hasBreeze(x, y) == this.markedTiles[x-1][y-1])) {
+                            if (!(this.naiveWorld.hasBreeze(x, y) == this.markedTiles[x-1][y-1])) {
                             	consistent = false;
                             }
                         }
@@ -173,7 +271,7 @@ public class NaiveBayes {
                         	/* If we have a square that is marked (should have a stench) but we don't find
                         	 *  a stench on that square according to world, we have a inconsistency.
                         	 * */
-                            if (!(this.w.hasStench(x, y) == this.markedTiles[x-1][y-1])) {
+                            if (!(this.naiveWorld.hasStench(x, y) == this.markedTiles[x-1][y-1])) {
                             	consistent = false;
                             }
                         }
