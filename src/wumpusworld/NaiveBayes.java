@@ -14,7 +14,6 @@ public class NaiveBayes {
 	ArrayList<int[]> frontierList = new ArrayList<int[]>();
 	ArrayList<double[]> probabilityList = new ArrayList<double[]>();
 	
-	private int pitCount = 0;
 	private boolean wumpusFound = false;
 	private int [] wumpusCoordinates = {0, 0};
 	
@@ -76,9 +75,10 @@ public class NaiveBayes {
 		}
 	}
 	
+	
 	/**
-	 * 
-	 * @param sensor
+	 * Function for calculating the probability of encountering a pit/Wumpus given the different combinations
+	 * @param sensor Integer stating which type of sensor be used for probability calculations (PIT/WUMPUS)
 	 */
 	private void calculateProbability(int sensor) {
 		double probability;
@@ -100,20 +100,16 @@ public class NaiveBayes {
 		
 		/* Calculating probability for the frontier */
 		for (int i = 0; i < frontierList.size(); i++) {
-			
-			/* Variable holding the number of combinations */
-			int numOfCombinations = 0;
-			
-			/* Arrays of type int holding the frontier queries with their corresponding true/false flags */
-			int [] trueQuery = new int[] {frontierList.get(i)[0], frontierList.get(i)[1], 1};
-			int [] falseQuery = new int[] {frontierList.get(i)[0], frontierList.get(i)[1], 0};
-			
 			/* Probability variables for true and false probabilities respectively */
 			double trueProbability = 0;
 			double falseProbability = 0;
 			
 			/* Probability after normalization */
 			double normalizedProbability = 0;
+			
+			/* Arrays of type int holding the frontier queries with their corresponding true/false flags */
+			int [] trueQuery = new int[] {frontierList.get(i)[0], frontierList.get(i)[1], 1};
+			int [] falseQuery = new int[] {frontierList.get(i)[0], frontierList.get(i)[1], 0};
 			
 			/* Cloning list for current query */
 			ArrayList<int[]> currentQuery = cloneList(frontierList);
@@ -180,8 +176,8 @@ public class NaiveBayes {
 		}
 	}
 	
-	private void findMove() {
-		/* TBA */
+	public boolean findMove() {
+
 	}
 
 	/**
