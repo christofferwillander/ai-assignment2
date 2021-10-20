@@ -86,10 +86,12 @@ public class NaiveBayes {
 		
 		/* Setting the probability according to the sensor in question */
 		if (sensor == PIT) {
+			PROBABILITY_PIT = updateProbability(PIT);
 			probability = PROBABILITY_PIT;
 			System.out.println("Calculating probability for pit");
 		}
 		else if (sensor == WUMPUS) {
+			PROBABILITY_WUMPUS = updateProbability(WUMPUS);
 			probability = PROBABILITY_WUMPUS;
 			System.out.println("Calculating probability for Wumpus");
 		}
@@ -177,6 +179,9 @@ public class NaiveBayes {
 	}
 	
 	public boolean findMove() {
+
+		// Will calculate the probability of a pit and save the values into the probability list:
+		calculateProbability(PIT);
 
 	}
 
@@ -390,5 +395,38 @@ public class NaiveBayes {
 
 	  return trueCount;
   }
+
+  /**
+    *
+    * @param sensor Either PIT or WUMPUS.
+    * 
+    * @return The updated probability for the given sensor.
+    */
+    private double updateProbability(int sensor) {
+    	double probability = 1;
+    	double knownSquares = w.getKnowns();
+    	
+        if(sensor == PIT) {
+        	int size = w.getSize();
+        	int discoveredPits = 0;
+            for (int x = 1; x <= size; x++) {
+                for (int y = 1; y <= size; y++)
+                {
+                    if(!w.isUnknown(x,y) && w.hasPit(x,y)){
+                    	discoveredPits++;
+                    }
+                }
+            }
+            probability = (3 - discoveredPits)/(16 - knownSquares);
+        }
+        else if (sensor == WUMPUS) {
+        	probability = 1/(16 - knownSquares);
+        }
+        else {
+        	System.out.println("Incorrect sesnor provided in updateProbability!");
+        }
+        
+        return probability;
+    }
 	
 }
