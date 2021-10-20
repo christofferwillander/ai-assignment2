@@ -54,7 +54,7 @@ public class NaiveBayes {
 			if (!this.markedTiles[posX - 1][posY - 1]) {
 				System.out.println("Checking out coordinates ("+posX+", "+posY+")");
 				this.markedTiles[posX - 1][posY - 1] = true;
-				this.frontierList.add(new int[] {posX, posY});
+				this.frontierList.add(new int[] {posX, posY, 0});
 				this.probabilityList.add(new double[] {0, 0});
 				System.out.println("Set coordinates ("+posX+", "+posY+") as frontier");
 			}
@@ -115,10 +115,10 @@ public class NaiveBayes {
 			ArrayList<int[]> currentQuery = cloneList(frontierList);
 			currentQuery.remove(i);
 			
-			/* Creating structure for holding combinations */
+			/* Creating structure for holding combinations that will be generated inside getCombinations() */
 			ArrayList<ArrayList<int []>> combinationResult = new ArrayList<ArrayList<int[]>>();
 			
-			/* Array holding number of combinations */
+			/* Array holding the number of 1's (true) in each combination */
 			int[] combinationCount = getCombinations(currentQuery, combinationResult);
 			
 			/* Calculating the probability for all combinations in the array list */
@@ -157,10 +157,10 @@ public class NaiveBayes {
 			/* Updating the probability in the probability list */
 			double [] tempProbability = probabilityList.get(i);
 			
-			if (sensor == PROBABILITY_PIT) {
+			if (sensor == PIT) {
 				tempProbability[PIT] = normalizedProbability;
 			}
-			else if (sensor == PROBABILITY_WUMPUS) {
+			else if (sensor == WUMPUS) {
 				tempProbability[WUMPUS] = normalizedProbability;
 			}
 			
