@@ -14,8 +14,8 @@ public class NaiveBayes {
 	ArrayList<int[]> frontierList = new ArrayList<int[]>();
 	ArrayList<double[]> probabilityList = new ArrayList<double[]>();
 	
-	private boolean wumpusFound = false;
-	private int [] wumpusCoordinates = {0, 0};
+	public boolean wumpusFound = false;
+	public int [] wumpusCoordinates = {0, 0};
 	
 	/* Probability of pit given 3 pits in the configuration */
 	private static double PROBABILITY_PIT = 3/15;
@@ -49,11 +49,10 @@ public class NaiveBayes {
 		return knownTiles; 
 	}
 	
-	public double [] findMove() {
+	public void findMove(int goal []) {
 		double tempProb = 1;
-		double bestProb = 1;
-		double [] bestMove = new double [2]; 
-		
+		double bestProb = 2;
+
 		/* Clearing structures for frontier and probability */
 		this.frontierList.clear();
 		this.probabilityList.clear();
@@ -68,19 +67,16 @@ public class NaiveBayes {
 		
 		for (int i = 0; i < probabilityList.size(); i++) {
 			
-			tempProb = probabilityList.get(i)[WUMPUS] + probabilityList.get(i)[PIT];
+			tempProb = (probabilityList.get(i)[WUMPUS] + probabilityList.get(i)[PIT]);
 			
-			
-			if (tempProb < bestProb) {
+			if (tempProb <= bestProb) {
 				bestProb = tempProb;
-				bestMove[0] = probabilityList.get(i)[2];
-				bestMove[1] = probabilityList.get(i)[3];
+				goal[0] = (int)probabilityList.get(i)[2];
+				goal[1] = (int)probabilityList.get(i)[3];
 			}	
 		}
 		
-		System.out.println(bestMove[0]);
-		System.out.println(bestMove[1]);
-		return bestMove;
+		System.out.println("Current goal: (" + Integer.toString((int)goal[0]) + ", " + Integer.toString((int)goal[1]) + ")");
 	}
 	
 	public boolean shouldShoot() {
@@ -214,12 +210,14 @@ public class NaiveBayes {
 				tempProbability[PIT] = normalizedProbability;
 				tempProbability[2] = frontierList.get(i)[0];
 				tempProbability[3] = frontierList.get(i)[1];
+				System.out.println("Current probability for pit: " + Double.toString(normalizedProbability * 100) + " %" + " (" + Double.toString(frontierList.get(i)[0]) + ", " + Double.toString(frontierList.get(i)[1]) + ")");
 				
 			}
 			else if (sensor == WUMPUS) {
 				tempProbability[WUMPUS] = normalizedProbability;
 				tempProbability[2] = frontierList.get(i)[0];
 				tempProbability[3] = frontierList.get(i)[1];
+				System.out.println("Current probability for Wumpus: " + Double.toString(normalizedProbability * 100) + " %" + " (" + Double.toString(frontierList.get(i)[0]) + ", " + Double.toString(frontierList.get(i)[1]) + ")");
 			}
 			
 			probabilityList.set(i, tempProbability);
@@ -229,6 +227,7 @@ public class NaiveBayes {
 				wumpusFound = true;
 				wumpusCoordinates[0] = frontierList.get(i)[0];
 				wumpusCoordinates[1] = frontierList.get(i)[1];
+				System.out.println("Found Wumpus at (" + Integer.toString(wumpusCoordinates[0]) + ", " + Integer.toString(wumpusCoordinates[1]) + ")");
 				return;
 			}
 		}
@@ -430,7 +429,7 @@ public class NaiveBayes {
 			   * 11 (both of them harbors either a pit or a wumpus)
 			   * */
 			  int mask = 1 << j;
-			  System.out.println(mask + " & " + bit + " == " + (mask & bit));
+			  /* System.out.println(mask + " & " + bit + " == " + (mask & bit)); */
 			  if((mask & bit)!= 0) {
 				  // Set the status of the square to 1 (true):
 				  currentCombination.get(j)[2] = 1;
