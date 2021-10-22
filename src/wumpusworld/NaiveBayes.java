@@ -35,14 +35,65 @@ public class NaiveBayes {
 		this.naiveWorld = currentWorld;
 	}
 	
-	public void makeMove() {
+	private int getKnowns() {
+		int knownTiles = 0;
+		
+		for (int x = 1; x <= naiveWorld.getSize(); x++) {
+			for (int y = 1; y <= naiveWorld.getSize(); y++) {
+				if (naiveWorld.isVisited(x, y)) {
+					knownTiles++;
+				}
+			}
+		}
+		
+		return knownTiles; 
+	}
+	
+	public double [] findMove() {
+		double tempProb = 1;
+		double bestProb = 1;
+		double [] bestMove = new double [2]; 
+		
 		/* Clearing structures for frontier and probability */
 		this.frontierList.clear();
 		this.probabilityList.clear();
 		this.markedTiles = new boolean[4][4];
 		
-		/* Cloning current world into clonedWorld */
-		findFrontier(this.naiveWorld.getPlayerX(), this.naiveWorld.getPlayerY());
+		/* Finding current frontier */
+		findFrontier(this.naiveWorld.getPlayerX(), this.naiveWorld.getPlayerY());	
+		
+		/* Calculating probability for encountering pit/Wumpus */
+		calculateProbability(PIT);
+		calculateProbability(WUMPUS);
+		
+		for (int i = 0; i < probabilityList.size(); i++) {
+			
+			tempProb = probabilityList.get(i)[WUMPUS] + probabilityList.get(i)[PIT];
+			
+			
+			if (tempProb < bestProb) {
+				bestProb = tempProb;
+				bestMove[0] = probabilityList.get(i)[2];
+				bestMove[1] = probabilityList.get(i)[3];
+			}	
+		}
+		
+		System.out.println(bestMove[0]);
+		System.out.println(bestMove[1]);
+		return bestMove;
+	}
+	
+	public boolean shouldShoot() {
+		boolean shoot = false;
+		
+		if (wumpusFound) {
+			
+		}
+		else {
+			
+		}
+		
+		return shoot;
 	}
 	
 	public void findFrontier(int posX, int posY) {
@@ -55,7 +106,7 @@ public class NaiveBayes {
 				System.out.println("Checking out coordinates ("+posX+", "+posY+")");
 				this.markedTiles[posX - 1][posY - 1] = true;
 				this.frontierList.add(new int[] {posX, posY, 0});
-				this.probabilityList.add(new double[] {0, 0});
+				this.probabilityList.add(new double[] {0, 0, 0, 0});
 				System.out.println("Set coordinates ("+posX+", "+posY+") as frontier");
 			}
 			else {
@@ -128,11 +179,11 @@ public class NaiveBayes {
 				int totalCombinations = combinationResult.size();
 				
 				/* Constructing the true combination query */
-				ArrayList<int[]> trueCombinationQuery = combinationResult.get(combination);
+				ArrayList<int[]> trueCombinationQuery = cloneList(combinationResult.get(combination));
 				trueCombinationQuery.add(trueQuery);
 				
 				/* Constructing the false combination query */
-				ArrayList<int[]> falseCombinationQuery = combinationResult.get(combination);
+				ArrayList<int[]> falseCombinationQuery = cloneList(combinationResult.get(combination));
 				falseCombinationQuery.add(falseQuery);
 				
 				/* If sensor in question is PIT and there are <= 3 pits OR if sensor is WUMPUS and there are <= 1 WUMPUS */
@@ -161,9 +212,14 @@ public class NaiveBayes {
 			
 			if (sensor == PIT) {
 				tempProbability[PIT] = normalizedProbability;
+				tempProbability[2] = frontierList.get(i)[0];
+				tempProbability[3] = frontierList.get(i)[1];
+				
 			}
 			else if (sensor == WUMPUS) {
 				tempProbability[WUMPUS] = normalizedProbability;
+				tempProbability[2] = frontierList.get(i)[0];
+				tempProbability[3] = frontierList.get(i)[1];
 			}
 			
 			probabilityList.set(i, tempProbability);
@@ -176,13 +232,6 @@ public class NaiveBayes {
 				return;
 			}
 		}
-	}
-	
-	public boolean findMove() {
-
-		// Will calculate the probability of a pit and save the values into the probability list:
-		calculateProbability(PIT);
-
 	}
 
 	/**
@@ -404,15 +453,15 @@ public class NaiveBayes {
     */
     private double updateProbability(int sensor) {
     	double probability = 1;
-    	double knownSquares = w.getKnowns();
+    	double knownSquares = getKnowns();
     	
         if(sensor == PIT) {
-        	int size = w.getSize();
+        	int size = naiveWorld.getSize();
         	int discoveredPits = 0;
             for (int x = 1; x <= size; x++) {
                 for (int y = 1; y <= size; y++)
                 {
-                    if(!w.isUnknown(x,y) && w.hasPit(x,y)){
+                    if(!naiveWorld.isUnknown(x,y) && naiveWorld.hasPit(x,y)){
                     	discoveredPits++;
                     }
                 }

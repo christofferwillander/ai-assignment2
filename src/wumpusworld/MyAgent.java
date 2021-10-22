@@ -33,12 +33,11 @@ public class MyAgent implements Agent
 
     public void doAction()
     {
+    	double move[];
+    	
         //Location of the player
         int cX = w.getPlayerX();
-        int cY = w.getPlayerY();
-        
-        bayesEngine.makeMove();
-        
+        int cY = w.getPlayerY();   
         //Basic action:
         //Grab Gold if we can.
         if (w.hasGlitter(cX, cY))
@@ -85,32 +84,33 @@ public class MyAgent implements Agent
             System.out.println("I am facing Down");
         }
         
-        //decide next move
-        /*rnd = decideRandomMove();
-        if (rnd==0)
-        {
-            w.doAction(World.A_TURN_LEFT);
-            w.doAction(World.A_MOVE);
-        }
         
-        if (rnd==1)
-        {
-            w.doAction(World.A_MOVE);
-        }
-                
-        if (rnd==2)
-        {
-            w.doAction(World.A_TURN_LEFT);
-            w.doAction(World.A_TURN_LEFT);
-            w.doAction(World.A_MOVE);
-        }
-                        
-        if (rnd==3)
-        {
-            w.doAction(World.A_TURN_RIGHT);
-            w.doAction(World.A_MOVE);
-        }*/
-                
+        move = bayesEngine.findMove();
+        
+//        if (move==0)
+//        {
+//            w.doAction(World.A_TURN_LEFT);
+//            w.doAction(World.A_MOVE);
+//        }
+//        
+//        if (move==1)
+//        {
+//            w.doAction(World.A_MOVE);
+//        }
+//                
+//        if (move==2)
+//        {
+//            w.doAction(World.A_TURN_LEFT);
+//            w.doAction(World.A_TURN_LEFT);
+//            w.doAction(World.A_MOVE);
+//        }
+//                        
+//        if (move==3)
+//        {
+//            w.doAction(World.A_TURN_RIGHT);
+//            w.doAction(World.A_MOVE);
+//        }
+//                
     }    
     
      /**
