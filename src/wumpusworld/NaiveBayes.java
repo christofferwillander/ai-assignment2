@@ -59,6 +59,7 @@ public class NaiveBayes {
 		this.markedTiles = new boolean[4][4];
 		
 		/* Finding current frontier */
+		System.out.println("\n--------Frontier calculations (" + Integer.toString(naiveWorld.getPlayerX()) + ", " + Integer.toString(naiveWorld.getPlayerY())+ ")--------");
 		findFrontier(this.naiveWorld.getPlayerX(), this.naiveWorld.getPlayerY());	
 		
 		/* Calculating probability for encountering pit/Wumpus */
@@ -129,7 +130,7 @@ public class NaiveBayes {
 	 */
 	private void calculateProbability(int sensor) {
 		double probability;
-		System.out.println("--------Probability calculations--------");
+		System.out.println("\n--------Probability calculations (" + Integer.toString(naiveWorld.getPlayerX()) + ", " + Integer.toString(naiveWorld.getPlayerY())+ ")--------");
 		
 		/* Setting the probability according to the sensor in question */
 		if (sensor == PIT) {
@@ -210,14 +211,14 @@ public class NaiveBayes {
 				tempProbability[PIT] = normalizedProbability;
 				tempProbability[2] = frontierList.get(i)[0];
 				tempProbability[3] = frontierList.get(i)[1];
-				System.out.println("Current probability for pit: " + Double.toString(normalizedProbability * 100) + " %" + " (" + Double.toString(frontierList.get(i)[0]) + ", " + Double.toString(frontierList.get(i)[1]) + ")");
+				System.out.println("Current probability for pit: " + Double.toString(normalizedProbability * 100) + " %" + " (" + Integer.toString((int)frontierList.get(i)[0]) + ", " + Integer.toString((int)frontierList.get(i)[1]) + ")");
 				
 			}
 			else if (sensor == WUMPUS) {
 				tempProbability[WUMPUS] = normalizedProbability;
 				tempProbability[2] = frontierList.get(i)[0];
 				tempProbability[3] = frontierList.get(i)[1];
-				System.out.println("Current probability for Wumpus: " + Double.toString(normalizedProbability * 100) + " %" + " (" + Double.toString(frontierList.get(i)[0]) + ", " + Double.toString(frontierList.get(i)[1]) + ")");
+				System.out.println("Current probability for Wumpus: " + Double.toString(normalizedProbability * 100) + " %" + " (" + Integer.toString((int)frontierList.get(i)[0]) + ", " + Integer.toString((int)frontierList.get(i)[1]) + ")");
 			}
 			
 			probabilityList.set(i, tempProbability);

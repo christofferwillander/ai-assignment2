@@ -162,7 +162,7 @@ public class MyAgent implements Agent
     	int distanceX = goal[0] - w.getPlayerX();
     	int distanceY = goal[1] - w.getPlayerY();
     	
-    	if (distanceX != 0 && (Math.abs(distanceX) > Math.abs(distanceY))) {
+    	if (distanceX != 0) {
     		if (distanceX > 0) {
 	    		if (w.isVisited(w.getPlayerX() + 1, w.getPlayerY()) || (w.getPlayerX() + 1) == goal[0]) {
 					while (w.getDirection() != w.DIR_RIGHT) {
