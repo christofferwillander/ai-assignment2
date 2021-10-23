@@ -196,7 +196,12 @@ public class NaiveBayes {
 					}
 					
 					if (verifyConsistency(falseCombinationQuery, sensor)) {
-						falseProbability += Math.pow(probability, combinationCount[combination]) * Math.pow(1 - probability, totalCombinations - combinationCount[combination]);
+						if (probability == 1) {
+							falseProbability = 1;
+						}
+						else {
+							falseProbability += Math.pow(probability, combinationCount[combination]) * Math.pow(1 - probability, totalCombinations - combinationCount[combination]);
+						}
 					}
 				}
 			}
@@ -457,7 +462,7 @@ public class NaiveBayes {
     * @return The updated probability for the given sensor.
     */
     private double updateProbability(int sensor) {
-    	double probability = 1;
+    	double probability = 0;
     	double knownSquares = getKnowns();
     	
         if(sensor == PIT) {
@@ -471,10 +476,13 @@ public class NaiveBayes {
                     }
                 }
             }
+            
             probability = (3 - discoveredPits)/(16 - knownSquares);
         }
         else if (sensor == WUMPUS) {
-        	probability = 1/(16 - knownSquares);
+        	if (naiveWorld.wumpusAlive()) {
+        		probability = 1/(16 - knownSquares);
+        	}
         }
         else {
         	System.out.println("Incorrect sesnor provided in updateProbability!");

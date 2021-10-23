@@ -126,7 +126,7 @@ public class MyAgent implements Agent
 	    	   goalSet = true;
 	    	   
 	    	   /* If Wumpus was found, set this as our new goal */
-	    	   if (bayesEngine.wumpusFound) {
+	    	   if (bayesEngine.wumpusFound && w.hasArrow()) {
 	    		   goal[0] = bayesEngine.wumpusCoordinates[0];
 	        	   goal[1] = bayesEngine.wumpusCoordinates[1];
 	    	   }  
@@ -147,23 +147,28 @@ public class MyAgent implements Agent
 	       }
 	       
 	       if (bayesEngine.probabilityList.size() == 2 && (bayesEngine.probabilityList.get(0)[1] == bayesEngine.probabilityList.get(1)[1]) && (bayesEngine.probabilityList.get(0)[1] > 0)) {
-	    	   shootWumpus = true;
+	    	   if (w.hasArrow()) {
+	    		   shootWumpus = true;
+	    	   }
 	       }
 	       
 	       /* Move towards our goal using the determined path */
 	       if (goalSet && currentPath != null) {
-	    	   while (w.getDirection() != currentPath.get(0).direction) {
-	    		   w.doAction(w.A_TURN_LEFT);
-	    	   }
 	    	   
-	    	   if (!shootWumpus) {
-	    		   w.doAction(w.A_MOVE);
+	    	   if (currentPath.size() > 0) {
+		    	   while (w.getDirection() != currentPath.get(0).direction) {
+		    		   w.doAction(w.A_TURN_LEFT);
+		    	   }
+		    	   
+		    	   if (!shootWumpus) {
+		    		   w.doAction(w.A_MOVE);
+		    	   }
+		    	   else {
+		        	   w.doAction(w.A_SHOOT);
+		        	   bayesEngine.wumpusFound = false;
+		    	   }
+		    	   currentPath.remove(0);
 	    	   }
-	    	   else {
-	        	   w.doAction(w.A_SHOOT);
-	        	   bayesEngine.wumpusFound = false;
-	    	   }
-	    	   currentPath.remove(0);
 	       }
     	}
     }    
@@ -246,7 +251,7 @@ public class MyAgent implements Agent
     	boolean [][] currentTrail = cloneTrail(trail);
     	
     	/* If tile has been visited and is safe (i.e. no pit or Wumpus) */
-    	if (w.isVisited(posX, posY) && !w.hasPit(posX, posY) && !w.hasWumpus(posX, posY) && !currentTrail[posX - 1][posY - 1]) {
+    	if (w.isVisited(posX, posY) && !w.hasWumpus(posX, posY) && !currentTrail[posX - 1][posY - 1]) {
     		/* Adding current position to path */
     		currentPath.add(new Node(posX, posY, direction));
     		
