@@ -1,6 +1,4 @@
 package wumpusworld;
-import java.util.Queue;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 
 /**
@@ -57,111 +55,117 @@ public class MyAgent implements Agent
      */
 
     public void doAction()
-    {	
-        //Location of the player
-        int cX = w.getPlayerX();
-        int cY = w.getPlayerY();   
-        //Basic action:
-        //Grab Gold if we can.
-        if (w.hasGlitter(cX, cY))
-        {
-            w.doAction(World.A_GRAB);
-            return;
-        }
-        
-        //Basic action:
-        //We are in a pit. Climb up.
-        if (w.isInPit())
-        {
-            w.doAction(World.A_CLIMB);
-            return;
-        }
-        
-        //Test the environment
-        if (w.hasBreeze(cX, cY))
-        {
-            System.out.println("I am in a Breeze");
-        }
-        if (w.hasStench(cX, cY))
-        {
-            System.out.println("I am in a Stench");
-        }
-        if (w.hasPit(cX, cY))
-        {
-            System.out.println("I am in a Pit");
-        }
-        if (w.getDirection() == World.DIR_RIGHT)
-        {
-            System.out.println("I am facing Right");
-        }
-        if (w.getDirection() == World.DIR_LEFT)
-        {
-            System.out.println("I am facing Left");
-        }
-        if (w.getDirection() == World.DIR_UP)
-        {
-            System.out.println("I am facing Up");
-        }
-        if (w.getDirection() == World.DIR_DOWN)
-        {
-            System.out.println("I am facing Down");
-        }
-        if (w.hasGlitter(cX, cY)) {
-        	w.doAction(w.A_GRAB);
-        }
-       
-       /* If goal was reached, set goalSet to false and currentPath to NULL */
-       if ((cX == goal[0] && cY == goal[1]) || shootWumpus) {
-    	   goalSet = false;
-    	   currentPath = null;
-    	   shootWumpus = false;
-       }
-       
-       /* If a new goal has to be found */ 
-       if (!goalSet) {
-    	   
-    	   /* Find goal using Naïve Bayes model */
-    	   bayesEngine.findMove(goal); 
-    	   goalSet = true;
-    	   
-    	   /* If Wumpus was found, set this as our new goal */
-    	   if (bayesEngine.wumpusFound) {
-    		   goal[0] = bayesEngine.wumpusCoordinates[0];
-        	   goal[1] = bayesEngine.wumpusCoordinates[1];
-    	   }  
-       }
-       
-       /* Checking if the player is adjacent to the Wumpus before shooting */
-       if (bayesEngine.wumpusFound && ((cX == goal[0] && (cY == goal[1] - 1 || cY == goal[1] + 1)) || ((cX == goal[0] - 1 || cX == goal[0] + 1) && cY == goal[1]))) {
-		   shootWumpus = true;
-		   
-    	   if (w.hasPit(cX, cY)) {
-			   w.doAction(w.A_CLIMB);
+    {		
+    	if (!w.gameOver()) {
+	        //Location of the player
+	        int cX = w.getPlayerX();
+	        int cY = w.getPlayerY();   
+	        //Basic action:
+	        //Grab Gold if we can.
+	        if (w.hasGlitter(cX, cY))
+	        {
+	            w.doAction(World.A_GRAB);
+	            return;
+	        }
+	        
+	        //Basic action:
+	        //We are in a pit. Climb up.
+	        if (w.isInPit())
+	        {
+	            w.doAction(World.A_CLIMB);
+	            return;
+	        }
+	        
+	        //Test the environment
+	        if (w.hasBreeze(cX, cY))
+	        {
+	            System.out.println("I am in a Breeze");
+	        }
+	        if (w.hasStench(cX, cY))
+	        {
+	            System.out.println("I am in a Stench");
+	        }
+	        if (w.hasPit(cX, cY))
+	        {
+	            System.out.println("I am in a Pit");
+	        }
+	        if (w.getDirection() == World.DIR_RIGHT)
+	        {
+	            System.out.println("I am facing Right");
+	        }
+	        if (w.getDirection() == World.DIR_LEFT)
+	        {
+	            System.out.println("I am facing Left");
+	        }
+	        if (w.getDirection() == World.DIR_UP)
+	        {
+	            System.out.println("I am facing Up");
+	        }
+	        if (w.getDirection() == World.DIR_DOWN)
+	        {
+	            System.out.println("I am facing Down");
+	        }
+	        if (w.hasGlitter(cX, cY)) {
+	        	w.doAction(w.A_GRAB);
+	        }
+	       
+	       /* If goal was reached, set goalSet to false and currentPath to NULL */
+	       if ((cX == goal[0] && cY == goal[1]) || shootWumpus) {
+	    	   goalSet = false;
+	    	   currentPath = null;
+	    	   shootWumpus = false;
+	       }
+	       
+	       
+	       
+	       /* If a new goal has to be found */ 
+	       if (!goalSet) {
+	    	   
+	    	   /* Find goal using Naïve Bayes model */
+	    	   bayesEngine.findMove(goal); 
+	    	   goalSet = true;
+	    	   
+	    	   /* If Wumpus was found, set this as our new goal */
+	    	   if (bayesEngine.wumpusFound) {
+	    		   goal[0] = bayesEngine.wumpusCoordinates[0];
+	        	   goal[1] = bayesEngine.wumpusCoordinates[1];
+	    	   }  
+	       }
+	       
+	       /* Checking if the player is adjacent to the Wumpus before shooting */
+	       if (bayesEngine.wumpusFound && ((cX == goal[0] && (cY == goal[1] - 1 || cY == goal[1] + 1)) || ((cX == goal[0] - 1 || cX == goal[0] + 1) && cY == goal[1]))) {
+			   shootWumpus = true;
+			   
+	    	   if (w.hasPit(cX, cY)) {
+				   w.doAction(w.A_CLIMB);
+			   }
 		   }
-	   }
-       
-       /* Find the best path to our goal */
-       if (goalSet && currentPath == null) {
-    	   currentPath = findBestPath(cX, cY);
-       }
-       
-       /* Move towards our goal using the determined path */
-       if (goalSet && currentPath != null) {
-    	   while (w.getDirection() != currentPath.get(0).direction) {
-    		   w.doAction(w.A_TURN_LEFT);
-    	   }
-    	   
-    	   if (!shootWumpus) {
-    		   w.doAction(w.A_MOVE);
-    	   }
-    	   else {
-        	   w.doAction(w.A_SHOOT);
-        	   bayesEngine.wumpusFound = false;
-    	   }
-    	   currentPath.remove(0);
-       }
-       
-
+	       
+	       /* Find the best path to our goal */
+	       if (goalSet && currentPath == null) {
+	    	   currentPath = findBestPath(cX, cY);
+	       }
+	       
+	       if (bayesEngine.probabilityList.size() == 2 && (bayesEngine.probabilityList.get(0)[1] == bayesEngine.probabilityList.get(1)[1]) && (bayesEngine.probabilityList.get(0)[1] > 0)) {
+	    	   shootWumpus = true;
+	       }
+	       
+	       /* Move towards our goal using the determined path */
+	       if (goalSet && currentPath != null) {
+	    	   while (w.getDirection() != currentPath.get(0).direction) {
+	    		   w.doAction(w.A_TURN_LEFT);
+	    	   }
+	    	   
+	    	   if (!shootWumpus) {
+	    		   w.doAction(w.A_MOVE);
+	    	   }
+	    	   else {
+	        	   w.doAction(w.A_SHOOT);
+	        	   bayesEngine.wumpusFound = false;
+	    	   }
+	    	   currentPath.remove(0);
+	       }
+    	}
     }    
     
      /**

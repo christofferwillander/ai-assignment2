@@ -187,7 +187,12 @@ public class NaiveBayes {
 				if ((sensor == PIT && combinationCount[combination] <= 3) || (sensor == WUMPUS && combinationCount[combination] <= 1)) {
 					/* Verify consistency for true and false query, if consistent - add probability */
 					if (verifyConsistency(trueCombinationQuery, sensor)) {
-						trueProbability += Math.pow(probability, combinationCount[combination]) * Math.pow(1 - probability, totalCombinations - combinationCount[combination]);
+						if (probability == 1) {
+							trueProbability = 1;
+						}
+						else {
+							trueProbability += Math.pow(probability, combinationCount[combination]) * Math.pow(1 - probability, totalCombinations - combinationCount[combination]);
+						}
 					}
 					
 					if (verifyConsistency(falseCombinationQuery, sensor)) {
