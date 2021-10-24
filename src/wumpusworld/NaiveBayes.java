@@ -51,6 +51,8 @@ public class NaiveBayes {
 	
 	public void findMove(int goal []) {
 		double tempProb = 1;
+
+		/* We set bestProb to 2 because we can max get a 2 when add together the Wumpus probability and the Pit probability. */
 		double bestProb = 2;
 
 		/* Clearing structures for frontier and probability */
@@ -70,6 +72,7 @@ public class NaiveBayes {
 			
 			tempProb = (probabilityList.get(i)[WUMPUS] + probabilityList.get(i)[PIT]);
 			
+			/* We want to set our goal to the square with the least chance of harboring either a wumpus or a pit. */
 			if (tempProb <= bestProb) {
 				bestProb = tempProb;
 				goal[0] = (int)probabilityList.get(i)[2];
@@ -165,28 +168,29 @@ public class NaiveBayes {
 			ArrayList<int[]> currentQuery = cloneList(frontierList);
 			currentQuery.remove(i);
 			
-			/* Creating structure for holding combinations that will be generated inside getCombinations() */
-			ArrayList<ArrayList<int []>> combinationResult = new ArrayList<ArrayList<int[]>>();
+			/* Creating structure for holding combinations that will be generated inside getModels() */
+			ArrayList<ArrayList<int []>> modelList = new ArrayList<ArrayList<int[]>>();
 			
 			/* Array holding the number of 1's (true) in each combination */
-			int[] combinationCount = getCombinations(currentQuery, combinationResult);
+			int[] combinationCount = getModels(currentQuery, modelList);
 			
 			/* Calculating the probability for all combinations in the array list */
-			for (int combination = 0; combination < combinationResult.size(); combination++) {
-				int totalCombinations = combinationResult.size();
+			for (int combination = 0; combination < modelList.size(); combination++) {
+				int totalCombinations = modelList.size();
 				
 				/* Constructing the true combination query */
-				ArrayList<int[]> trueCombinationQuery = cloneList(combinationResult.get(combination));
+				ArrayList<int[]> trueCombinationQuery = cloneList(modelList.get(combination));
 				trueCombinationQuery.add(trueQuery);
 				
 				/* Constructing the false combination query */
-				ArrayList<int[]> falseCombinationQuery = cloneList(combinationResult.get(combination));
+				ArrayList<int[]> falseCombinationQuery = cloneList(modelList.get(combination));
 				falseCombinationQuery.add(falseQuery);
 				
 				/* If sensor in question is PIT and there are <= 3 pits OR if sensor is WUMPUS and there are <= 1 WUMPUS */
 				if ((sensor == PIT && combinationCount[combination] <= 3) || (sensor == WUMPUS && combinationCount[combination] <= 1)) {
-					/* Verify consistency for true and false query, if consistent - add probability */
-					if (verifyConsistency(trueCombinationQuery, sensor)) {
+					/* Verify if the model is consistent with the observed world for each query (true/false), if consistent - add probability */
+					if (verifyModel(trueCombinationQuery, sensor)) {
+						/* If we have a 100% chance of a Wumpus (we have only 1 square left) we set the true probability to 1 (100%). */
 						if (probability == 1) {
 							trueProbability = 1;
 						}
@@ -195,7 +199,7 @@ public class NaiveBayes {
 						}
 					}
 					
-					if (verifyConsistency(falseCombinationQuery, sensor)) {
+					if (verifyModel(falseCombinationQuery, sensor)) {
 						if (probability == 1) {
 							falseProbability = 1;
 						}
@@ -250,7 +254,7 @@ public class NaiveBayes {
     * @param yPos The current y-axis coordinate. 
     */
     private void markNeighborTiles(int xPos, int yPos) {
-    	// Only mark the square if it is valid and it has not already been marked.
+    	/* Only mark the square if it is valid and it has not already been marked. */
     	
     	if(this.naiveWorld.isValidPosition(xPos + 1, yPos) && !this.markedTiles[xPos][yPos - 1]) {
         	this.markedTiles[xPos][yPos - 1] = true;
@@ -272,10 +276,7 @@ public class NaiveBayes {
     * @param condition Either WUMPUS or PIT. The consistency will be different depending on the condition. 
     * @return boolean
     */
-    private boolean verifyConsistency(ArrayList<int[]> frontierQuery, int condition) {
-
-        //World cw = w.cloneWorld();  /*create a world of conjecture*/
-    	// [0][0] represents [1,1] in the game world which means that each index is 1 less than the world square index.
+    private boolean verifyModel(ArrayList<int[]> frontierQuery, int condition) {
     	this.markedTiles = new boolean[4][4];
         int limit = this.naiveWorld.getSize();
         boolean consistent = true;
@@ -290,7 +291,6 @@ public class NaiveBayes {
                     	 *  mark all surrounding squares (they should contain a breeze).
                     	 * */
                     	markNeighborTiles(x, y);
-                        //cw.markSurrounding(x,y);
                     }
                 }
             }
@@ -309,11 +309,10 @@ public class NaiveBayes {
             	 *    should contain either a breeze or a stench depending on the condition.
             	 * */
             	markNeighborTiles(cx, cy);
-                //cw.markSurrounding(cx,cy);
             }
         }
 
-        // Here we check for any inconsistencies with the marked squares against the real world:
+        /* Here we check for any inconsistencies with the marked squares against the real world: */
         for (int x = 1; x <= limit; x++) {
             for (int y = 1; y <= limit; y++) {
                 if (!(this.naiveWorld.isUnknown(x, y))) {
@@ -358,7 +357,7 @@ public class NaiveBayes {
     private ArrayList<int[]> cloneList(ArrayList<int[]> list) {
         ArrayList<int[]> listClone = new ArrayList<int[]>(list.size());
         
-        // Clone each item in the input list to the clone:
+        /* Clone each item in the input list to the clone: */
         for (int listItem = 0; listItem < list.size(); listItem++) {
             listClone.add(list.get(listItem).clone());
         }
@@ -368,26 +367,26 @@ public class NaiveBayes {
 	/**
     *
     * @param combinationSet The set of squares that will be combined into different situations. Format: int[] { pos_x, pos_y, status }, where status 1 = true | 0 = false.
-    * @param combinationResult A call by reference list of combinationSets that will store the result after the different combinations have been created.
+    * @param modelList A call by reference list of combinationSets that will store the result after the different combinations have been created.
 	*
-    * @return A list of the number of 1's (true) in each combination (mirrors the indexes of combinationResult). This value can be used to verify that the number of 1's set in a specific combination correspond to the number of existing pits and wumpus.
+    * @return A list of the number of 1's (true) in each combination (mirrors the indexes of modelList). This value can be used to verify that the number of 1's set in a specific combination correspond to the number of existing pits and wumpus.
     */
-    private int[] getCombinations(ArrayList<int[]> combinationSet, ArrayList<ArrayList<int[]>> combinationResult) {
+    private int[] getModels(ArrayList<int[]> combinationSet, ArrayList<ArrayList<int[]>> modelList) {
 
-	  // The bitLength should equal the total number of squares in the frontier (excluding the query square):
+	  /* The bitLength should equal the total number of squares in the frontier (excluding the query square): */
 	  int bitLength = combinationSet.size();
 	  
-	  // Indicates the number of different combinations (2^n)
+	  /* Indicates the number of different combinations (2^n) */
 	  int nrOfCombinations = 1 << bitLength;
 	  
-	  // Holds the count of the number of 1's (true) that are set in each combination:
+	  /* Holds the count of the number of 1's (true) that are set in each combination: */
 	  int[] trueCount = new int[nrOfCombinations];
 	  
-	  // Temporary list that holds the current combinations:
+	  /* Temporary list that holds the current combinations: */
 	  ArrayList<int[]> currentCombination;
 
 	  for(int bit = 0; bit < nrOfCombinations; bit++) {
-		  // Counting the positions whose statuses are true in the current combination:
+		  /* Counting the positions whose statuses are true in the current combination: */
 		  int nrOfOnes = 0;
 		  
 		  /* Get the current combinations from the combination set. The cloning is done to
@@ -442,13 +441,13 @@ public class NaiveBayes {
 			  int mask = 1 << j;
 			  /* System.out.println(mask + " & " + bit + " == " + (mask & bit)); */
 			  if((mask & bit)!= 0) {
-				  // Set the status of the square to 1 (true):
+				  /* Set the status of the square to 1 (true): */
 				  currentCombination.get(j)[2] = 1;
 				  nrOfOnes++;
 			  }
 		  }
 
-		  combinationResult.add(currentCombination);
+		  modelList.add(currentCombination);
 		  trueCount[bit] = nrOfOnes;
 	  }
 
